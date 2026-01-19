@@ -554,8 +554,8 @@ export default function OrderFormPage() {
                             step="0.01"
                             className="h-9"
                             placeholder="Mtül"
-                            value={item.linear_meter?.toFixed(2) || ''}
-                            onChange={(e) => updateItem(index, 'linear_meter', Number(e.target.value))}
+                            value={((item.linear_meter || 0) * item.quantity).toFixed(2)}
+                            readOnly
                           />
                         ) : (
                           <Input
@@ -563,8 +563,8 @@ export default function OrderFormPage() {
                             step="0.01"
                             className="h-9"
                             placeholder="M²"
-                            value={item.square_meter?.toFixed(2) || ''}
-                            onChange={(e) => updateItem(index, 'square_meter', Number(e.target.value))}
+                            value={((item.square_meter || 0) * item.quantity).toFixed(2)}
+                            readOnly
                           />
                         )}
                       </td>
