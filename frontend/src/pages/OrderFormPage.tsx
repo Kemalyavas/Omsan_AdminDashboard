@@ -45,7 +45,7 @@ interface OrderItem {
   width?: number
   length?: number
   quantity: number
-  measure_type: 'm2' | 'mtul' // M² veya Metretül
+  measure_type: 'm2' | 'mtul' | 'none' // M², Metretül veya Adet
   square_meter?: number
   linear_meter?: number
   unit_price: number
@@ -55,7 +55,7 @@ interface OrderItem {
 
 const emptyItem: OrderItem = {
   quantity: 1,
-  measure_type: 'm2',
+  measure_type: 'none',
   unit_price: 0,
   total_price: 0,
 }
@@ -130,7 +130,7 @@ export default function OrderFormPage() {
         width: item.width,
         length: item.length,
         quantity: item.quantity,
-        measure_type: item.linear_meter ? 'mtul' : 'm2',
+        measure_type: item.linear_meter ? 'mtul' : item.square_meter ? 'm2' : 'none',
         square_meter: item.square_meter,
         linear_meter: item.linear_meter,
         unit_price: item.unit_price,
@@ -218,7 +218,7 @@ export default function OrderFormPage() {
           item.total_price = item.square_meter * item.quantity * item.unit_price
         }
         item.linear_meter = undefined
-      } else {
+      } else if (item.measure_type === 'mtul') {
         // Metretül hesaplama
         if (item.length) {
           item.linear_meter = item.length / 100 // cm to meter
@@ -227,6 +227,11 @@ export default function OrderFormPage() {
           item.total_price = item.linear_meter * item.quantity * item.unit_price
         }
         item.square_meter = undefined
+      } else {
+        // Adet hesaplama (none)
+        item.total_price = item.quantity * item.unit_price
+        item.square_meter = undefined
+        item.linear_meter = undefined
       }
 
       return newItems
@@ -535,13 +540,14 @@ export default function OrderFormPage() {
                       </td>
                       <td className="py-2 pr-2">
                         <Select
-                          value={item.measure_type || 'm2'}
-                          onValueChange={(value) => updateItem(index, 'measure_type', value as 'm2' | 'mtul')}
+                          value={item.measure_type || 'none'}
+                          onValueChange={(value) => updateItem(index, 'measure_type', value as 'm2' | 'mtul' | 'none')}
                         >
                           <SelectTrigger className="h-9">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value="none">Adet</SelectItem>
                             <SelectItem value="m2">M²</SelectItem>
                             <SelectItem value="mtul">Metretül</SelectItem>
                           </SelectContent>
@@ -557,7 +563,7 @@ export default function OrderFormPage() {
                             value={((item.linear_meter || 0) * item.quantity).toFixed(2)}
                             readOnly
                           />
-                        ) : (
+                        ) : item.measure_type === 'm2' ? (
                           <Input
                             type="number"
                             step="0.01"
@@ -565,6 +571,14 @@ export default function OrderFormPage() {
                             placeholder="M²"
                             value={((item.square_meter || 0) * item.quantity).toFixed(2)}
                             readOnly
+                          />
+                        ) : (
+                          <Input
+                            type="text"
+                            className="h-9 bg-gray-50"
+                            value="-"
+                            readOnly
+                            disabled
                           />
                         )}
                       </td>
