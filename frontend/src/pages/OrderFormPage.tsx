@@ -33,7 +33,7 @@ import {
   createStoneType,
   createStoneFeature,
 } from '@/lib/api'
-import { formatCurrency, calculateSquareMeter, calculateItemTotal } from '@/lib/utils'
+import { formatCurrency, calculateSquareMeter } from '@/lib/utils'
 
 interface OrderItem {
   id?: string
@@ -113,12 +113,13 @@ export default function OrderFormPage() {
   // Load existing order data
   useEffect(() => {
     if (existingOrder) {
-      setCustomerId(existingOrder.customer_id)
+      setCustomerId(existingOrder.customer_id || null)
       setOrderDate(existingOrder.order_date.split('T')[0])
       setStatus(existingOrder.status)
       setDiscountAmount(existingOrder.discount_amount || 0)
       setVatRate(existingOrder.vat_rate)
       setNotes(existingOrder.notes || '')
+      if (!existingOrder.order_items) return
       setItems(existingOrder.order_items.map((item: any) => ({
         id: item.id,
         stone_type_id: item.stone_type_id,
@@ -351,12 +352,12 @@ export default function OrderFormPage() {
                 <div className="flex-1">
                   <Label>Müşteri</Label>
                   <Select
-                    value={customerId?.toString() || ''}
+                    value={customerId || ''}
                     onValueChange={(value) => {
                       if (value === 'new') {
                         setNewCustomerDialog(true)
                       } else {
-                        setCustomerId(Number(value))
+                        setCustomerId(value)
                       }
                     }}
                   >

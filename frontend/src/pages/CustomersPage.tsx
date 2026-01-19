@@ -46,9 +46,15 @@ export default function CustomersPage() {
   })
 
   const { data: customers = [], isLoading } = useQuery({
-    queryKey: ['customers', search],
-    queryFn: () => getCustomers(search || undefined),
+    queryKey: ['customers'],
+    queryFn: () => getCustomers(),
   })
+
+  // Client-side filtering
+  const filteredCustomers = customers.filter((c: Customer) =>
+    !search || c.name.toLowerCase().includes(search.toLowerCase()) ||
+    (c.phone && c.phone.includes(search))
+  )
 
   const createMutation = useMutation({
     mutationFn: createCustomer,
@@ -167,7 +173,7 @@ export default function CustomersPage() {
         <div className="text-center py-8 text-gray-500">Yükleniyor...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {customers.map((customer: Customer) => (
+          {filteredCustomers.map((customer: Customer) => (
             <Card key={customer.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
@@ -201,13 +207,11 @@ export default function CustomersPage() {
                     <span className="truncate">{customer.address}</span>
                   </div>
                 )}
-                <div className="pt-2 border-t">
-                  <span className="text-gray-500">{customer._count?.orders || 0} sipariş</span>
-                </div>
+
               </CardContent>
             </Card>
           ))}
-          {customers.length === 0 && (
+          {filteredCustomers.length === 0 && (
             <div className="col-span-full text-center py-8 text-gray-500">
               Müşteri bulunamadı
             </div>

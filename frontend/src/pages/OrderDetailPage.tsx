@@ -81,10 +81,10 @@ export default function OrderDetailPage() {
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{order.orderNumber}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{order.order_number}</h1>
               <Badge variant={status.variant}>{status.label}</Badge>
             </div>
-            <p className="text-gray-500">{formatDate(order.orderDate)}</p>
+            <p className="text-gray-500">{formatDate(order.order_date)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
