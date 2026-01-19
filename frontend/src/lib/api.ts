@@ -358,43 +358,195 @@ export const getRecentOrders = async (limit: number = 5): Promise<Order[]> => {
 }
 
 // ==================== PDF & EXCEL ====================
-// Bu fonksiyonlar Vercel API routes kullanacak
-const API_URL = import.meta.env.VITE_API_URL || ''
+// Frontend'den direkt oluştur - Vercel API gerektirmez
+
+function formatCurrencyForExport(amount: number): string {
+  return new Intl.NumberFormat('tr-TR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount || 0) + ' TL'
+}
 
 export const downloadOrderPdf = async (id: string) => {
-  const response = await fetch(`${API_URL}/api/pdf/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+  // Siparişi al
+  const order = await getOrder(id)
+  if (!order) throw new Error('Sipariş bulunamadı')
+  
+  // HTML oluştur
+  const itemsHtml = order.order_items?.map((item: any, index: number) => {
+    const stoneType = item.stone_type?.name || item.stone_type_name || '-'
+    const feature = item.stone_feature?.name || item.stone_feature_name || '-'
+    let measure = '-'
+    if (item.linear_meter) {
+      measure = `${(item.linear_meter * item.quantity).toFixed(2)} mtül`
+    } else if (item.square_meter) {
+      measure = `${(item.square_meter * item.quantity).toFixed(2)} m²`
     }
-  })
+    
+    return `
+      <tr>
+        <td style="padding: 8px; border: 1px solid #ddd;">${index + 1}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${stoneType}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${feature}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${item.thickness || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${item.width || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${item.length || '-'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${item.quantity}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${measure}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${formatCurrencyForExport(item.unit_price)}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${formatCurrencyForExport(item.total_price)}</td>
+      </tr>
+    `
+  }).join('') || ''
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Sipariş ${order.order_number}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; padding: 30px; color: #333; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e40af; padding-bottom: 15px; }
+        .company-name { font-size: 22px; font-weight: bold; color: #1e40af; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .info-box { background: #f8fafc; padding: 12px; border-radius: 6px; flex: 1; margin: 0 5px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 12px; }
+        th { background: #1e40af; color: white; padding: 10px; text-align: left; }
+        .totals { text-align: right; margin-top: 15px; }
+        .total-row { display: flex; justify-content: flex-end; padding: 5px 0; }
+        .total-label { width: 150px; }
+        .total-value { width: 120px; text-align: right; font-weight: bold; }
+        .grand-total { font-size: 18px; color: #1e40af; border-top: 2px solid #1e40af; padding-top: 10px; margin-top: 10px; }
+        @media print { body { padding: 10px; } }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="company-name">OMSAN MERMER SAN. TİC. LTD. ŞTİ.</div>
+        <div>Camicedit Mah. İstanbul Cad. No:92 Osmaneli/Bilecik</div>
+        <div>Tel: 0 228 461 46 39 | E-posta: omsangranit@gmail.com</div>
+      </div>
+      
+      <div class="info-row">
+        <div class="info-box">
+          <strong>Sipariş No:</strong> ${order.order_number}<br>
+          <strong>Tarih:</strong> ${new Date(order.order_date).toLocaleDateString('tr-TR')}
+        </div>
+        <div class="info-box">
+          <strong>Müşteri:</strong> ${order.customer?.name || '-'}<br>
+          <strong>Telefon:</strong> ${order.customer?.phone || '-'}
+        </div>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Taş Cinsi</th>
+            <th>Özellik</th>
+            <th>Kalınlık</th>
+            <th>Genişlik</th>
+            <th>Uzunluk</th>
+            <th>Adet</th>
+            <th>Miktar</th>
+            <th>Birim Fiyat</th>
+            <th>Tutar</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+      
+      <div class="totals">
+        <div class="total-row">
+          <span class="total-label">Ara Toplam:</span>
+          <span class="total-value">${formatCurrencyForExport(order.subtotal)}</span>
+        </div>
+        ${order.discount_amount ? `
+        <div class="total-row" style="color: #dc2626;">
+          <span class="total-label">İskonto:</span>
+          <span class="total-value">-${formatCurrencyForExport(order.discount_amount)}</span>
+        </div>
+        ` : ''}
+        <div class="total-row">
+          <span class="total-label">KDV (%${order.vat_rate}):</span>
+          <span class="total-value">${formatCurrencyForExport(order.vat_amount)}</span>
+        </div>
+        <div class="total-row grand-total">
+          <span class="total-label">GENEL TOPLAM:</span>
+          <span class="total-value">${formatCurrencyForExport(order.grand_total)}</span>
+        </div>
+      </div>
+      
+      ${order.notes ? `
+      <div style="margin-top: 20px; padding: 10px; background: #fef3c7; border-radius: 6px;">
+        <strong>Notlar:</strong><br>${order.notes}
+      </div>
+      ` : ''}
+      
+      <script>window.onload = function() { window.print(); }</script>
+    </body>
+    </html>
+  `
   
-  if (!response.ok) throw new Error('PDF indirilemedi')
-  
-  const blob = await response.blob()
-  const url = window.URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.setAttribute('download', `Siparis-${id}.pdf`)
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-  window.URL.revokeObjectURL(url)
+  // Yeni pencerede aç (yazdırma için)
+  const printWindow = window.open('', '_blank')
+  if (printWindow) {
+    printWindow.document.write(html)
+    printWindow.document.close()
+  }
 }
 
 export const downloadOrderExcel = async (id: string) => {
-  const response = await fetch(`${API_URL}/api/excel/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+  // Siparişi al
+  const order = await getOrder(id)
+  if (!order) throw new Error('Sipariş bulunamadı')
+  
+  // CSV oluştur (Excel'de açılabilir)
+  const BOM = '\uFEFF' // UTF-8 BOM for Turkish characters
+  let csv = BOM
+  
+  csv += `OMSAN MERMER SAN. TİC. LTD. ŞTİ.\n\n`
+  csv += `Sipariş No;${order.order_number}\n`
+  csv += `Tarih;${new Date(order.order_date).toLocaleDateString('tr-TR')}\n`
+  csv += `Müşteri;${order.customer?.name || '-'}\n`
+  csv += `Telefon;${order.customer?.phone || '-'}\n\n`
+  
+  csv += `#;Taş Cinsi;Özellik;Kalınlık;Genişlik;Uzunluk;Adet;Miktar;Birim Fiyat;Tutar\n`
+  
+  order.order_items?.forEach((item: any, index: number) => {
+    const stoneType = item.stone_type?.name || item.stone_type_name || '-'
+    const feature = item.stone_feature?.name || item.stone_feature_name || '-'
+    let measure = '-'
+    if (item.linear_meter) {
+      measure = `${(item.linear_meter * item.quantity).toFixed(2)} mtül`
+    } else if (item.square_meter) {
+      measure = `${(item.square_meter * item.quantity).toFixed(2)} m²`
     }
+    
+    csv += `${index + 1};${stoneType};${feature};${item.thickness || '-'};${item.width || '-'};${item.length || '-'};${item.quantity};${measure};${formatCurrencyForExport(item.unit_price)};${formatCurrencyForExport(item.total_price)}\n`
   })
   
-  if (!response.ok) throw new Error('Excel indirilemedi')
+  csv += `\n;;;;;;;;Ara Toplam;${formatCurrencyForExport(order.subtotal)}\n`
+  if (order.discount_amount) {
+    csv += `;;;;;;;;İskonto;-${formatCurrencyForExport(order.discount_amount)}\n`
+  }
+  csv += `;;;;;;;;KDV (%${order.vat_rate});${formatCurrencyForExport(order.vat_amount)}\n`
+  csv += `;;;;;;;;GENEL TOPLAM;${formatCurrencyForExport(order.grand_total)}\n`
   
-  const blob = await response.blob()
+  if (order.notes) {
+    csv += `\nNotlar;${order.notes}\n`
+  }
+  
+  // İndir
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = window.URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.setAttribute('download', `Siparis-${id}.xlsx`)
+  link.setAttribute('download', `${order.order_number}.csv`)
   document.body.appendChild(link)
   link.click()
   link.remove()
