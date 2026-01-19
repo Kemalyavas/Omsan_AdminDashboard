@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,7 +13,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/use-toast'
-import { getStoneTypes, getStoneFeatures, createStoneType, createStoneFeature } from '@/lib/api'
+import { getStoneTypes, getStoneFeatures, createStoneType, createStoneFeature, deleteStoneType, deleteStoneFeature } from '@/lib/api'
 import { formatCurrency } from '@/lib/utils'
 
 export default function SettingsPage() {
@@ -77,6 +77,48 @@ export default function SettingsPage() {
     },
   })
 
+  const deleteStoneTypeMutation = useMutation({
+    mutationFn: deleteStoneType,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stone-types'] })
+      toast({ title: 'Taş cinsi silindi' })
+    },
+    onError: () => {
+      toast({ 
+        title: 'Hata', 
+        description: 'Taş cinsi silinemedi. Bu taş cinsi kullanımda olabilir.', 
+        variant: 'destructive' 
+      })
+    },
+  })
+
+  const deleteFeatureMutation = useMutation({
+    mutationFn: deleteStoneFeature,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stone-features'] })
+      toast({ title: 'Özellik silindi' })
+    },
+    onError: () => {
+      toast({ 
+        title: 'Hata', 
+        description: 'Özellik silinemedi. Bu özellik kullanımda olabilir.', 
+        variant: 'destructive' 
+      })
+    },
+  })
+
+  const handleDeleteStoneType = (id: string, name: string) => {
+    if (confirm(`"${name}" taş cinsini silmek istediğinizden emin misiniz?`)) {
+      deleteStoneTypeMutation.mutate(id)
+    }
+  }
+
+  const handleDeleteFeature = (id: string, name: string) => {
+    if (confirm(`"${name}" özelliğini silmek istediğinizden emin misiniz?`)) {
+      deleteFeatureMutation.mutate(id)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -103,9 +145,17 @@ export default function SettingsPage() {
               {stoneTypes.map((type: any) => (
                 <div
                   key={type.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group"
                 >
                   <span className="font-medium">{type.name}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                    onClick={() => handleDeleteStoneType(type.id, type.name)}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
                 </div>
               ))}
               {stoneTypes.length === 0 && (
@@ -132,12 +182,22 @@ export default function SettingsPage() {
               {stoneFeatures.map((feature: any) => (
                 <div
                   key={feature.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group"
                 >
                   <span className="font-medium">{feature.name}</span>
-                  {feature.defaultPrice && (
-                    <span className="text-gray-500">{formatCurrency(feature.defaultPrice)}</span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {feature.default_price && (
+                      <span className="text-gray-500">{formatCurrency(feature.default_price)}</span>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                      onClick={() => handleDeleteFeature(feature.id, feature.name)}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
                 </div>
               ))}
               {stoneFeatures.length === 0 && (

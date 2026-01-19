@@ -103,6 +103,15 @@ export const createStoneType = async (name: string): Promise<StoneType> => {
   return data
 }
 
+export const deleteStoneType = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('stone_types')
+    .delete()
+    .eq('id', id)
+  
+  if (error) throw error
+}
+
 // ==================== STONE FEATURES ====================
 export const getStoneFeatures = async (): Promise<StoneFeature[]> => {
   const { data, error } = await supabase
@@ -124,6 +133,15 @@ export const createStoneFeature = async (name: string, defaultPrice?: number): P
   
   if (error) throw error
   return data
+}
+
+export const deleteStoneFeature = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('stone_features')
+    .delete()
+    .eq('id', id)
+  
+  if (error) throw error
 }
 
 // ==================== ORDERS ====================
