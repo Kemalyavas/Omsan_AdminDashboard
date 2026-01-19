@@ -436,7 +436,7 @@ export default function OrderFormPage() {
                     <th className="pb-2 font-medium w-20">Uzunluk</th>
                     <th className="pb-2 font-medium w-16">Adet</th>
                     <th className="pb-2 font-medium w-20">Ölçü Tipi</th>
-                    <th className="pb-2 font-medium w-20">M²/Mtül</th>
+                    <th className="pb-2 font-medium w-20">Miktar</th>
                     <th className="pb-2 font-medium w-24">Fiyat</th>
                     <th className="pb-2 font-medium w-24">Tutar</th>
                     <th className="pb-2 w-10"></th>
