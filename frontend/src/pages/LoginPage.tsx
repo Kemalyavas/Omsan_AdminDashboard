@@ -67,7 +67,7 @@ export default function LoginPage() {
               <Input
                 id="username"
                 type="text"
-                placeholder="Omsan"
+                placeholder="Kullanıcı adınızı girin"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
