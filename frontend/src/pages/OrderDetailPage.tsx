@@ -197,7 +197,7 @@ export default function OrderDetailPage() {
                   <th className="pb-3 font-medium">Genişlik</th>
                   <th className="pb-3 font-medium">Uzunluk</th>
                   <th className="pb-3 font-medium">Adet</th>
-                  <th className="pb-3 font-medium">M²</th>
+                  <th className="pb-3 font-medium">Miktar</th>
                   <th className="pb-3 font-medium">Birim Fiyat</th>
                   <th className="pb-3 font-medium">Tutar</th>
                 </tr>
@@ -216,7 +216,14 @@ export default function OrderDetailPage() {
                     <td className="py-3">{item.width || '-'}</td>
                     <td className="py-3">{item.length || '-'}</td>
                     <td className="py-3">{item.quantity}</td>
-                    <td className="py-3">{item.square_meter?.toFixed(2) || item.linear_meter?.toFixed(2) || '-'}</td>
+                    <td className="py-3">
+                      {item.linear_meter 
+                        ? `${(item.linear_meter * item.quantity).toFixed(2)} mtül`
+                        : item.square_meter 
+                          ? `${(item.square_meter * item.quantity).toFixed(2)} m²`
+                          : '-'
+                      }
+                    </td>
                     <td className="py-3">{formatCurrency(item.unit_price)}</td>
                     <td className="py-3 font-medium">{formatCurrency(item.total_price)}</td>
                   </tr>

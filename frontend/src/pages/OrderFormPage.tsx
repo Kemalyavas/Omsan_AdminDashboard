@@ -367,7 +367,7 @@ export default function OrderFormPage() {
                     <SelectContent>
                       <SelectItem value="new">+ Yeni Müşteri Ekle</SelectItem>
                       {customers.map((customer: any) => (
-                        <SelectItem key={customer.id} value={customer.id.toString()}>
+                        <SelectItem key={customer.id} value={customer.id}>
                           {customer.name} {customer.phone && `(${customer.phone})`}
                         </SelectItem>
                       ))}
