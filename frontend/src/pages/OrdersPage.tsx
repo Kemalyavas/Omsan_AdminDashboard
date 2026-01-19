@@ -31,12 +31,20 @@ export default function OrdersPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
-  const { data: orders, isLoading } = useQuery({
-    queryKey: ['orders', search, statusFilter],
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ['orders', statusFilter],
     queryFn: () => getOrders({ 
-      search: search || undefined,
       status: statusFilter !== 'all' ? statusFilter : undefined 
     }),
+  })
+
+  // Frontend'de müşteri adına göre filtreleme
+  const filteredOrders = orders.filter((order: any) => {
+    if (!search) return true
+    const searchLower = search.toLowerCase()
+    const customerName = order.customer?.name?.toLowerCase() || ''
+    const orderNumber = order.order_number?.toLowerCase() || ''
+    return customerName.includes(searchLower) || orderNumber.includes(searchLower)
   })
 
   const deleteMutation = useMutation({
@@ -133,7 +141,7 @@ export default function OrdersPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {orders?.map((order: any) => {
+                  {filteredOrders?.map((order: any) => {
                     const status = statusLabels[order.status] || statusLabels.pending
                     return (
                       <tr 
@@ -190,7 +198,7 @@ export default function OrdersPage() {
                       </tr>
                     )
                   })}
-                  {(!orders || orders.length === 0) && (
+                  {filteredOrders.length === 0 && (
                     <tr>
                       <td colSpan={7} className="py-8 text-center text-gray-500">
                         Sipariş bulunamadı
