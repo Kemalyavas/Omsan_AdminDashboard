@@ -154,7 +154,8 @@ export const getOrders = async (params?: {
     .from('orders')
     .select(`
       *,
-      customer:customers(*)
+      customer:customers(*),
+      order_items(*)
     `)
     .order('created_at', { ascending: false })
   
@@ -229,16 +230,33 @@ export const createOrder = async (orderData: {
   if (orderError) throw orderError
   
   // Create order items
-  const orderItems = items.map(item => ({
-    ...item,
-    order_id: order.id,
-  }))
-  
-  const { error: itemsError } = await supabase
-    .from('order_items')
-    .insert(orderItems)
-  
-  if (itemsError) throw itemsError
+  if (items && items.length > 0) {
+    const orderItems = items.map(item => ({
+      order_id: order.id,
+      stone_type_id: item.stone_type_id || null,
+      stone_type_name: item.stone_type_name || null,
+      stone_feature_id: item.stone_feature_id || null,
+      stone_feature_name: item.stone_feature_name || null,
+      thickness: item.thickness || null,
+      width: item.width || null,
+      length: item.length || null,
+      quantity: item.quantity || 1,
+      square_meter: item.square_meter || null,
+      linear_meter: item.linear_meter || null,
+      unit_price: item.unit_price || 0,
+      total_price: item.total_price || 0,
+      notes: item.notes || null,
+    }))
+    
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .insert(orderItems)
+    
+    if (itemsError) {
+      console.error('Order items insert error:', itemsError)
+      throw itemsError
+    }
+  }
   
   return order
 }
@@ -287,14 +305,33 @@ export const updateOrder = async (id: string, orderData: {
     if (orderError) throw orderError
     
     // Create new items
-    const orderItems = items.map(item => ({
-      ...item,
-      order_id: id,
-    }))
-    
-    await supabase
-      .from('order_items')
-      .insert(orderItems)
+    if (items && items.length > 0) {
+      const orderItems = items.map(item => ({
+        order_id: id,
+        stone_type_id: item.stone_type_id || null,
+        stone_type_name: item.stone_type_name || null,
+        stone_feature_id: item.stone_feature_id || null,
+        stone_feature_name: item.stone_feature_name || null,
+        thickness: item.thickness || null,
+        width: item.width || null,
+        length: item.length || null,
+        quantity: item.quantity || 1,
+        square_meter: item.square_meter || null,
+        linear_meter: item.linear_meter || null,
+        unit_price: item.unit_price || 0,
+        total_price: item.total_price || 0,
+        notes: item.notes || null,
+      }))
+      
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems)
+      
+      if (itemsError) {
+        console.error('Order items update error:', itemsError)
+        throw itemsError
+      }
+    }
     
     return order
   } else {
