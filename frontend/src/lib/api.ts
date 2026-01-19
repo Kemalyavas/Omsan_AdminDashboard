@@ -191,7 +191,7 @@ export const createOrder = async (orderData: {
   const subtotal = items.reduce((sum, item) => sum + (item.total_price || 0), 0)
   const discount = orderFields.discount_amount || 0
   const total = subtotal - discount
-  const vatRate = orderFields.vat_rate || 20
+  const vatRate = orderFields.vat_rate !== undefined ? orderFields.vat_rate : 20
   const vatAmount = total * (vatRate / 100)
   const grandTotal = total + vatAmount
   
@@ -242,7 +242,7 @@ export const updateOrder = async (id: string, orderData: {
     const subtotal = items.reduce((sum, item) => sum + (item.total_price || 0), 0)
     const discount = orderFields.discount_amount || 0
     const total = subtotal - discount
-    const vatRate = orderFields.vat_rate || 20
+    const vatRate = orderFields.vat_rate !== undefined ? orderFields.vat_rate : 20
     const vatAmount = total * (vatRate / 100)
     const grandTotal = total + vatAmount
     
