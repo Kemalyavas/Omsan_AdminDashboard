@@ -72,24 +72,26 @@ export default function OrderDetailPage() {
   const status = statusLabels[order.status] || statusLabels.pending
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate('/orders')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{order.order_number}</h1>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg md:text-2xl font-bold text-gray-900">{order.order_number}</h1>
               <Badge variant={status.variant}>{status.label}</Badge>
             </div>
-            <p className="text-gray-500">{formatDate(order.order_date)}</p>
+            <p className="text-sm text-gray-500">{formatDate(order.order_date)}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        
+        {/* Action Buttons - Responsive Grid */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
           <Select value={order.status} onValueChange={(value) => statusMutation.mutate(value)}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full sm:w-40">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -99,19 +101,19 @@ export default function OrderDetailPage() {
               <SelectItem value="cancelled">İptal</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={handleDownloadPdf}>
-            <FileDown className="h-4 w-4 mr-2" />
-            PDF İndir
+          <Button variant="outline" onClick={handleDownloadPdf} className="text-sm">
+            <FileDown className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">PDF İndir</span>
           </Button>
-          <Button variant="outline" onClick={handleDownloadExcel}>
-            <FileSpreadsheet className="h-4 w-4 mr-2" />
-            Excel İndir
+          <Button variant="outline" onClick={handleDownloadExcel} className="text-sm">
+            <FileSpreadsheet className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Excel İndir</span>
           </Button>
-          <Button variant="outline" onClick={() => window.print()}>
-            <Printer className="h-4 w-4 mr-2" />
-            Yazdır
+          <Button variant="outline" onClick={() => window.print()} className="text-sm">
+            <Printer className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Yazdır</span>
           </Button>
-          <Button onClick={() => navigate(`/orders/${id}/edit`)}>
+          <Button onClick={() => navigate(`/orders/${id}/edit`)} className="col-span-2 sm:col-span-1">
             <Pencil className="h-4 w-4 mr-2" />
             Düzenle
           </Button>
@@ -180,8 +182,43 @@ export default function OrderDetailPage() {
         </Card>
       </div>
 
-      {/* Order Items */}
-      <Card>
+      {/* Order Items - Mobile Cards View */}
+      <div className="md:hidden space-y-3">
+        <h3 className="text-lg font-semibold">Sipariş Kalemleri</h3>
+        {order.order_items?.map((item: any, index: number) => (
+          <Card key={item.id}>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="font-semibold">{item.stone_type?.name || item.stone_type_name || '-'}</p>
+                  <p className="text-sm text-gray-500">{item.stone_feature?.name || item.stone_feature_name || '-'}</p>
+                </div>
+                <span className="text-xs bg-gray-100 px-2 py-1 rounded">#{index + 1}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-sm mb-3">
+                {item.thickness && <div><span className="text-gray-500">Kalınlık:</span> {item.thickness}</div>}
+                {item.width && <div><span className="text-gray-500">Genişlik:</span> {item.width}</div>}
+                {item.length && <div><span className="text-gray-500">Uzunluk:</span> {item.length}</div>}
+              </div>
+              <div className="flex justify-between items-center text-sm border-t pt-2">
+                <div>
+                  <span className="text-gray-500">Adet:</span> {item.quantity}
+                  {item.linear_meter 
+                    ? ` × ${(item.linear_meter * item.quantity).toFixed(2)} mtül`
+                    : item.square_meter 
+                      ? ` × ${(item.square_meter * item.quantity).toFixed(2)} m²`
+                      : ''
+                  }
+                </div>
+                <p className="font-bold text-lg">{formatCurrency(item.total_price)}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Order Items - Desktop Table */}
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle className="text-lg">Sipariş Kalemleri</CardTitle>
         </CardHeader>

@@ -140,14 +140,14 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Müşteriler</h1>
-          <p className="text-gray-500">Müşteri listesini görüntüleyin ve yönetin</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Müşteriler</h1>
+          <p className="text-sm text-gray-500">Müşteri listesini görüntüleyin ve yönetin</p>
         </div>
-        <Button onClick={openNewDialog}>
+        <Button onClick={openNewDialog} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Yeni Müşteri
         </Button>
@@ -155,7 +155,7 @@ export default function CustomersPage() {
 
       {/* Search */}
       <Card>
-        <CardContent className="p-4">
+        <CardContent className="p-3 md:p-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
@@ -221,7 +221,7 @@ export default function CustomersPage() {
 
       {/* Customer Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingCustomer ? 'Müşteriyi Düzenle' : 'Yeni Müşteri Ekle'}
@@ -236,7 +236,7 @@ export default function CustomersPage() {
                 required
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Telefon</Label>
                 <Input
@@ -260,7 +260,7 @@ export default function CustomersPage() {
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Vergi Dairesi</Label>
                 <Input
@@ -284,8 +284,8 @@ export default function CustomersPage() {
                 rows={3}
               />
             </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={closeDialog}>
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+              <Button type="button" variant="outline" onClick={closeDialog} className="w-full sm:w-auto">
                 İptal
               </Button>
               <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>

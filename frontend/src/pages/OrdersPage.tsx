@@ -76,14 +76,14 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Siparişler</h1>
-          <p className="text-gray-500">Tüm siparişleri görüntüleyin ve yönetin</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Siparişler</h1>
+          <p className="text-sm text-gray-500">Tüm siparişleri görüntüleyin ve yönetin</p>
         </div>
-        <Button onClick={() => navigate('/orders/new')}>
+        <Button onClick={() => navigate('/orders/new')} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Yeni Sipariş
         </Button>
@@ -91,8 +91,8 @@ export default function OrdersPage() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
+        <CardContent className="p-3 md:p-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -118,8 +118,78 @@ export default function OrdersPage() {
         </CardContent>
       </Card>
 
-      {/* Orders Table */}
-      <Card>
+      {/* Orders - Mobile Cards View */}
+      <div className="md:hidden space-y-3">
+        {isLoading ? (
+          <div className="text-center py-8 text-gray-500">Yükleniyor...</div>
+        ) : filteredOrders.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-gray-500">
+              Sipariş bulunamadı
+            </CardContent>
+          </Card>
+        ) : (
+          filteredOrders.map((order: any) => {
+            const status = statusLabels[order.status] || statusLabels.pending
+            return (
+              <Card 
+                key={order.id} 
+                className="cursor-pointer active:bg-gray-50"
+                onClick={() => navigate(`/orders/${order.id}`)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="font-semibold text-blue-600">{order.order_number}</p>
+                      <p className="text-sm text-gray-600">{order.customer?.name}</p>
+                    </div>
+                    <Badge variant={status.variant}>{status.label}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <span>{formatDate(order.order_date)}</span>
+                    <span>{order.order_items?.length || 0} kalem</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-lg">{formatCurrency(order.grand_total)}</span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(`/orders/${order.id}/edit`)
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9"
+                        onClick={(e) => handleDownloadPdf(order.id, e)}
+                      >
+                        <FileDown className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9"
+                        onClick={(e) => handleDelete(order.id, e)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })
+        )}
+      </div>
+
+      {/* Orders Table - Desktop View */}
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>Sipariş Listesi</CardTitle>
         </CardHeader>

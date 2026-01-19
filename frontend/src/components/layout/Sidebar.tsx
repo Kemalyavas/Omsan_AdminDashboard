@@ -4,7 +4,8 @@ import {
   FileText, 
   Users, 
   Settings,
-  Package
+  Package,
+  X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -15,45 +16,73 @@ const navigation = [
   { name: 'Ayarlar', href: '/settings', icon: Settings },
 ]
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
-    <div className="hidden md:flex md:w-64 md:flex-col">
-      <div className="flex flex-col flex-grow bg-slate-900 pt-5 overflow-y-auto">
-        {/* Logo */}
-        <div className="flex items-center flex-shrink-0 px-4 mb-8">
-          <Package className="h-8 w-8 text-blue-500" />
-          <span className="ml-3 text-xl font-bold text-white">OMSAN</span>
-        </div>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={onClose}
+        />
+      )}
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 space-y-1">
-          {navigation.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.href}
-              className={({ isActive }) =>
-                cn(
-                  'group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors',
-                  isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                )
-              }
+      {/* Sidebar */}
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="flex flex-col h-full bg-slate-900 pt-5 overflow-y-auto">
+          {/* Logo & Close button */}
+          <div className="flex items-center justify-between flex-shrink-0 px-4 mb-8">
+            <div className="flex items-center">
+              <Package className="h-8 w-8 text-blue-500" />
+              <span className="ml-3 text-xl font-bold text-white">OMSAN</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="md:hidden p-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white"
             >
-              <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
-              {item.name}
-            </NavLink>
-          ))}
-        </nav>
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-        {/* Footer */}
-        <div className="flex-shrink-0 p-4 border-t border-slate-700">
-          <div className="text-xs text-slate-400">
-            <p>OMSAN MERMER SAN. TİC. LTD. ŞTİ.</p>
-            <p className="mt-1">Sipariş Yönetim Sistemi v1.0</p>
+          {/* Navigation */}
+          <nav className="flex-1 px-3 space-y-1">
+            {navigation.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  cn(
+                    'group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors',
+                    isActive
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  )
+                }
+              >
+                <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                {item.name}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Footer */}
+          <div className="flex-shrink-0 p-4 border-t border-slate-700">
+            <div className="text-xs text-slate-400">
+              <p>OMSAN MERMER SAN. TİC. LTD. ŞTİ.</p>
+              <p className="mt-1">Sipariş Yönetim Sistemi v1.0</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

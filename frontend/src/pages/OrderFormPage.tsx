@@ -331,26 +331,26 @@ export default function OrderFormPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate('/orders')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-lg md:text-2xl font-bold text-gray-900">
             {isEdit ? 'Siparişi Düzenle' : 'Yeni Sipariş'}
           </h1>
-          <p className="text-gray-500">Sipariş bilgilerini doldurun</p>
+          <p className="text-sm text-gray-500">Sipariş bilgilerini doldurun</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         {/* Customer & Order Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Müşteri Bilgileri</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base md:text-lg">Müşteri Bilgileri</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
@@ -418,8 +418,8 @@ export default function OrderFormPage() {
 
         {/* Order Items */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Sipariş Kalemleri</CardTitle>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between pb-3">
+            <CardTitle className="text-base md:text-lg">Sipariş Kalemleri</CardTitle>
             <div className="flex gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => setNewStoneTypeDialog(true)}>
                 + Taş Cinsi
@@ -430,7 +430,191 @@ export default function OrderFormPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            {/* Mobile Cards View */}
+            <div className="md:hidden space-y-4">
+              {items.map((item, index) => (
+                <div key={index} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500">Kalem #{index + 1}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => removeItem(index)}
+                      disabled={items.length === 1}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                  
+                  {/* Taş Cinsi */}
+                  <div>
+                    <Label className="text-xs">Taş Cinsi</Label>
+                    <Select
+                      value={item.stone_type_id || ''}
+                      onValueChange={(value) => handleStoneTypeSelect(index, value)}
+                    >
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder="Seç" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">+ Yeni Ekle</SelectItem>
+                        {stoneTypes.map((type: any) => (
+                          <SelectItem key={type.id} value={type.id}>
+                            {type.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {!item.stone_type_id && (
+                      <Input
+                        className="h-10 mt-1"
+                        placeholder="Taş cinsi yazın"
+                        value={item.stone_type_name || ''}
+                        onChange={(e) => updateItem(index, 'stone_type_name', e.target.value)}
+                      />
+                    )}
+                  </div>
+
+                  {/* Özellik */}
+                  <div>
+                    <Label className="text-xs">Özellik</Label>
+                    <Select
+                      value={item.stone_feature_id || ''}
+                      onValueChange={(value) => handleFeatureSelect(index, value)}
+                    >
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder="Seç" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">+ Yeni Ekle</SelectItem>
+                        {stoneFeatures.map((feature: any) => (
+                          <SelectItem key={feature.id} value={feature.id}>
+                            {feature.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {!item.stone_feature_id && (
+                      <Input
+                        className="h-10 mt-1"
+                        placeholder="Özellik yazın"
+                        value={item.stone_feature_name || ''}
+                        onChange={(e) => updateItem(index, 'stone_feature_name', e.target.value)}
+                      />
+                    )}
+                  </div>
+
+                  {/* Ölçüler */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <Label className="text-xs">Kalınlık</Label>
+                      <Input
+                        type="number"
+                        className="h-10"
+                        placeholder="cm"
+                        value={item.thickness || ''}
+                        onChange={(e) => updateItem(index, 'thickness', Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Genişlik</Label>
+                      <Input
+                        type="number"
+                        className="h-10"
+                        placeholder="cm"
+                        value={item.width || ''}
+                        onChange={(e) => updateItem(index, 'width', Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Uzunluk</Label>
+                      <Input
+                        type="number"
+                        className="h-10"
+                        placeholder="cm"
+                        value={item.length || ''}
+                        onChange={(e) => updateItem(index, 'length', Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Adet, Ölçü Tipi, Miktar */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <Label className="text-xs">Adet</Label>
+                      <Input
+                        type="number"
+                        className="h-10"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => updateItem(index, 'quantity', Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Ölçü Tipi</Label>
+                      <Select
+                        value={item.measure_type || 'none'}
+                        onValueChange={(value) => updateItem(index, 'measure_type', value as 'm2' | 'mtul' | 'none')}
+                      >
+                        <SelectTrigger className="h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Adet</SelectItem>
+                          <SelectItem value="m2">M²</SelectItem>
+                          <SelectItem value="mtul">Metretül</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Miktar</Label>
+                      <Input
+                        type="text"
+                        className="h-10 bg-gray-100"
+                        value={
+                          item.measure_type === 'mtul'
+                            ? `${((item.linear_meter || 0) * item.quantity).toFixed(2)} mt`
+                            : item.measure_type === 'm2'
+                              ? `${((item.square_meter || 0) * item.quantity).toFixed(2)} m²`
+                              : '-'
+                        }
+                        readOnly
+                        disabled
+                      />
+                    </div>
+                  </div>
+
+                  {/* Fiyat & Tutar */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs">Birim Fiyat (TL)</Label>
+                      <Input
+                        type="number"
+                        className="h-10"
+                        placeholder="0"
+                        value={item.unit_price || ''}
+                        onChange={(e) => updateItem(index, 'unit_price', Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Tutar</Label>
+                      <div className="h-10 flex items-center justify-end font-bold text-lg text-blue-600">
+                        {formatCurrency(item.total_price || 0)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <Button type="button" variant="outline" className="w-full" onClick={addItem}>
+                <Plus className="h-4 w-4 mr-2" />
+                Satır Ekle
+              </Button>
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-gray-500">
@@ -614,7 +798,7 @@ export default function OrderFormPage() {
               </table>
             </div>
 
-            <Button type="button" variant="outline" className="mt-4" onClick={addItem}>
+            <Button type="button" variant="outline" className="mt-4 hidden md:flex" onClick={addItem}>
               <Plus className="h-4 w-4 mr-2" />
               Satır Ekle
             </Button>
@@ -622,7 +806,7 @@ export default function OrderFormPage() {
         </Card>
 
         {/* Totals & Notes */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Notlar</CardTitle>
@@ -681,11 +865,11 @@ export default function OrderFormPage() {
         </div>
 
         {/* Submit */}
-        <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline" onClick={() => navigate('/orders')}>
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
+          <Button type="button" variant="outline" onClick={() => navigate('/orders')} className="w-full sm:w-auto">
             İptal
           </Button>
-          <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+          <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="w-full sm:w-auto">
             <Save className="h-4 w-4 mr-2" />
             {isEdit ? 'Güncelle' : 'Kaydet'}
           </Button>

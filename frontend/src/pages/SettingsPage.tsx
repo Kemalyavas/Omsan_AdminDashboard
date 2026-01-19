@@ -120,22 +120,22 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Ayarlar</h1>
-        <p className="text-gray-500">Sistem ayarlarını yönetin</p>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Ayarlar</h1>
+        <p className="text-sm text-gray-500">Sistem ayarlarını yönetin</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Stone Types */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between pb-3">
             <div>
-              <CardTitle>Taş Cinsleri</CardTitle>
-              <CardDescription>Sistemde kayıtlı taş cinsleri</CardDescription>
+              <CardTitle className="text-base md:text-lg">Taş Cinsleri</CardTitle>
+              <CardDescription className="text-sm">Sistemde kayıtlı taş cinsleri</CardDescription>
             </div>
-            <Button size="sm" onClick={() => setStoneTypeDialog(true)}>
+            <Button size="sm" onClick={() => setStoneTypeDialog(true)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Ekle
             </Button>
@@ -145,13 +145,13 @@ export default function SettingsPage() {
               {stoneTypes.map((type: any) => (
                 <div
                   key={type.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group"
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                 >
                   <span className="font-medium">{type.name}</span>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                    className="h-8 w-8"
                     onClick={() => handleDeleteStoneType(type.id, type.name)}
                   >
                     <Trash2 className="h-4 w-4 text-red-500" />
@@ -167,12 +167,12 @@ export default function SettingsPage() {
 
         {/* Stone Features */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between pb-3">
             <div>
-              <CardTitle>Taş Özellikleri</CardTitle>
-              <CardDescription>Sistemde kayıtlı özellikler ve varsayılan fiyatlar</CardDescription>
+              <CardTitle className="text-base md:text-lg">Taş Özellikleri</CardTitle>
+              <CardDescription className="text-sm">Sistemde kayıtlı özellikler ve varsayılan fiyatlar</CardDescription>
             </div>
-            <Button size="sm" onClick={() => setFeatureDialog(true)}>
+            <Button size="sm" onClick={() => setFeatureDialog(true)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Ekle
             </Button>
@@ -182,17 +182,17 @@ export default function SettingsPage() {
               {stoneFeatures.map((feature: any) => (
                 <div
                   key={feature.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group"
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                 >
                   <span className="font-medium">{feature.name}</span>
                   <div className="flex items-center gap-2">
                     {feature.default_price && (
-                      <span className="text-gray-500">{formatCurrency(feature.default_price)}</span>
+                      <span className="text-gray-500 text-sm">{formatCurrency(feature.default_price)}</span>
                     )}
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                      className="h-8 w-8"
                       onClick={() => handleDeleteFeature(feature.id, feature.name)}
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />

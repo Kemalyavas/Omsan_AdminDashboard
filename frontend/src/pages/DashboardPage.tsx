@@ -62,31 +62,31 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500">Sipariş yönetim sistemine hoş geldiniz</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500">Sipariş yönetim sistemine hoş geldiniz</p>
         </div>
-        <Button onClick={() => navigate('/orders/new')}>
+        <Button onClick={() => navigate('/orders/new')} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Yeni Sipariş
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {statCards.map((stat) => (
           <Card key={stat.title}>
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                  <p className="text-3xl font-bold mt-1">{stat.value}</p>
+                  <p className="text-xs md:text-sm font-medium text-gray-500">{stat.title}</p>
+                  <p className="text-xl md:text-3xl font-bold mt-1">{stat.value}</p>
                 </div>
-                <div className={`p-3 rounded-lg ${stat.color}`}>
-                  <stat.icon className="h-6 w-6 text-white" />
+                <div className={`p-2 md:p-3 rounded-lg ${stat.color}`}>
+                  <stat.icon className="h-5 w-5 md:h-6 md:w-6 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -96,15 +96,15 @@ export default function DashboardPage() {
 
       {/* Monthly Revenue */}
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-4 md:p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">Bu Ay Toplam Gelir</p>
-              <p className="text-3xl font-bold mt-1 text-green-600">
+              <p className="text-2xl md:text-3xl font-bold mt-1 text-green-600">
                 {formatCurrency(stats?.monthly_revenue || 0)}
               </p>
             </div>
-            <TrendingUp className="h-12 w-12 text-green-500 opacity-20" />
+            <TrendingUp className="h-10 w-10 md:h-12 md:w-12 text-green-500 opacity-20" />
           </div>
         </CardContent>
       </Card>
