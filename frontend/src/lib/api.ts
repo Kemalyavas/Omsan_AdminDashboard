@@ -463,7 +463,7 @@ export const downloadOrderPdf = async (id: string) => {
       <div class="header">
         <div class="company-name">OMSAN MERMER SAN. TİC. LTD. ŞTİ.</div>
         <div>Camicedit Mah. İstanbul Cad. No:92 Osmaneli/Bilecik</div>
-        <div>Tel: 0 228 461 46 39 | E-posta: omsangranit@gmail.com</div>
+        <div>Tel: 0535 613 17 04 | E-posta: omsangranit@gmail.com</div>
       </div>
       
       <div class="info-row">

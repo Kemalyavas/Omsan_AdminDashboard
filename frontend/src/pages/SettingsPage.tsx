@@ -222,7 +222,7 @@ export default function SettingsPage() {
             </div>
             <div>
               <Label>Telefon</Label>
-              <Input defaultValue="0 228 461 46 39" />
+              <Input defaultValue="0535 613 17 04" />
             </div>
             <div>
               <Label>E-posta</Label>
