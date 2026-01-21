@@ -552,27 +552,32 @@ export const downloadOrderExcel = async (id: string) => {
   csv += `Müşteri;${order.customer?.name || '-'}\n`
   csv += `Telefon;${order.customer?.phone || '-'}\n\n`
   
-  csv += `#;Taş Cinsi;Özellik;Kalınlık;Genişlik;Uzunluk;Adet;Miktar;Birim Fiyat;Tutar\n`
+  csv += `#;Taş Cinsi;Özellik;Kalınlık;Genişlik;Uzunluk;Adet;Miktar;Birim;Birim Fiyat;Tutar\n`
   
   order.order_items?.forEach((item: any, index: number) => {
     const stoneType = item.stone_type?.name || item.stone_type_name || '-'
     const feature = item.stone_feature?.name || item.stone_feature_name || '-'
-    let measure = '-'
+    
+    // Miktar ve birim ayrı sütunlarda
+    let miktarValue = '-'
+    let birimValue = '-'
     if (item.linear_meter) {
-      measure = `${(item.linear_meter * item.quantity).toFixed(2)} mtül`
+      miktarValue = (item.linear_meter * item.quantity).toFixed(2).replace('.', ',')
+      birimValue = 'mtul'
     } else if (item.square_meter) {
-      measure = `${(item.square_meter * item.quantity).toFixed(2)} m²`
+      miktarValue = (item.square_meter * item.quantity).toFixed(2).replace('.', ',')
+      birimValue = 'm2'
     }
     
-    csv += `${index + 1};${stoneType};${feature};${item.thickness || '-'};${item.width || '-'};${item.length || '-'};${item.quantity};${measure};${formatCurrencyForExport(item.unit_price)};${formatCurrencyForExport(item.total_price)}\n`
+    csv += `${index + 1};${stoneType};${feature};${item.thickness || '-'};${item.width || '-'};${item.length || '-'};${item.quantity};${miktarValue};${birimValue};${formatCurrencyForExport(item.unit_price)};${formatCurrencyForExport(item.total_price)}\n`
   })
   
-  csv += `\n;;;;;;;;Ara Toplam;${formatCurrencyForExport(order.subtotal)}\n`
+  csv += `\n;;;;;;;;;Ara Toplam;${formatCurrencyForExport(order.subtotal)}\n`
   if (order.discount_amount) {
-    csv += `;;;;;;;;İskonto;-${formatCurrencyForExport(order.discount_amount)}\n`
+    csv += `;;;;;;;;;İskonto;-${formatCurrencyForExport(order.discount_amount)}\n`
   }
-  csv += `;;;;;;;;KDV (%${order.vat_rate});${formatCurrencyForExport(order.vat_amount)}\n`
-  csv += `;;;;;;;;GENEL TOPLAM;${formatCurrencyForExport(order.grand_total)}\n`
+  csv += `;;;;;;;;;KDV (%${order.vat_rate});${formatCurrencyForExport(order.vat_amount)}\n`
+  csv += `;;;;;;;;;GENEL TOPLAM;${formatCurrencyForExport(order.grand_total)}\n`
   
   if (order.notes) {
     csv += `\nNotlar;${order.notes}\n`
